@@ -1,54 +1,38 @@
 <?php
-// Include database connection
-include('../includes/db.php');
+// Initialize variables
+$message = '';
+$user_id = '';
 
-// Initialize message variable
-$message = "";
-
-// Check if the form is submitted
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize and get form inputs
-    $first_name = mysqli_real_escape_string($conn, $_POST['first_name']);
-    $last_name = mysqli_real_escape_string($conn, $_POST['last_name']);
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
-    $qualification = mysqli_real_escape_string($conn, $_POST['qualification']);
-    $sub_qualification = isset($_POST['sub_qualification']) ? mysqli_real_escape_string($conn, $_POST['sub_qualification']) : '';
-    $pg_qualification = isset($_POST['pg_qualification']) ? mysqli_real_escape_string($conn, $_POST['pg_qualification']) : '';
-    $occupation = isset($_POST['occupation']) ? mysqli_real_escape_string($conn, $_POST['occupation']) : '';
-    $gov_id_proof = mysqli_real_escape_string($conn, $_POST['gov_id_proof']);
-    $pan_id = mysqli_real_escape_string($conn, $_POST['pan_id']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
-    $dob = mysqli_real_escape_string($conn, $_POST['dob']);
-    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
-    $title = mysqli_real_escape_string($conn, $_POST['title']);
-    $role = mysqli_real_escape_string($conn, $_POST['role']);
-    $designation = isset($_POST['designation']) ? mysqli_real_escape_string($conn, $_POST['designation']) : '';
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
-    $confirm_password = mysqli_real_escape_string($conn, $_POST['confirm_password']);
+    // Sanitize and fetch form data
+    $first_name = htmlspecialchars($_POST['first_name']);
+    $last_name = htmlspecialchars($_POST['last_name']);
+    $address = htmlspecialchars($_POST['address']);
+    $qualification = htmlspecialchars($_POST['qualification']);
+    $sub_qualification = isset($_POST['sub_qualification']) ? htmlspecialchars($_POST['sub_qualification']) : '';
+    $pg_qualification = isset($_POST['pg_qualification']) ? htmlspecialchars($_POST['pg_qualification']) : '';
+    $occupation = isset($_POST['occupation']) ? htmlspecialchars($_POST['occupation']) : '';
+    $gov_id_proof = htmlspecialchars($_POST['gov_id_proof']);
+    $pan_id = htmlspecialchars($_POST['pan_id']);
+    $email = htmlspecialchars($_POST['email']);
+    $phone = htmlspecialchars($_POST['phone']);
+    $dob = htmlspecialchars($_POST['dob']);
+    $gender = htmlspecialchars($_POST['gender']);
+    $title = htmlspecialchars($_POST['title']);
+    $role = htmlspecialchars($_POST['role']);
+    $password = htmlspecialchars($_POST['password']);
+    $confirm_password = htmlspecialchars($_POST['confirm_password']);
 
-    // Validate password
-    if ($password !== $confirm_password) {
-        $message = "Passwords do not match!";
-    } else {
-        // Hash password
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    // Generate user ID based on first name, DOB, and current year
+    $dob_year = date("Y", strtotime($dob));  // Extract year from DOB
+    $user_id = strtolower($first_name) . $dob_year;  // Concatenate first name and year
 
-        // Insert into database
-        $sql = "INSERT INTO users (first_name, last_name, address, qualification, sub_qualification, pg_qualification, occupation, gov_id_proof, pan_id, email, phone, dob, gender, title, role, designation, password)
-                VALUES ('$first_name', '$last_name', '$address', '$qualification', '$sub_qualification', '$pg_qualification', '$occupation', '$gov_id_proof', '$pan_id', '$email', '$phone', '$dob', '$gender', '$title', '$role', '$designation', '$hashed_password')";
+    // Example message for demonstration
+    $message = "User ID generated: " . $user_id;
 
-        if (mysqli_query($conn, $sql)) {
-            // Redirect or show success message
-            $message = "Registration successful! <a href='login.php'>Login here</a>";
-        } else {
-            $message = "Error: " . mysqli_error($conn);
-        }
-    }
+    // You can proceed with further processing like inserting data into the database, etc.
 }
-
-// Close database connection
-mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -57,13 +41,11 @@ mysqli_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Digital E Gram Panchayat</title>
-    <!-- Add Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/auth.css">
 </head>
 <body>
 
-<!-- Header Section -->
 <header class="bg-dark text-white py-3">
     <div class="container">
         <h1 class="text-center mb-0">Digital E Gram Panchayat</h1>
@@ -71,13 +53,12 @@ mysqli_close($conn);
     </div>
 </header>
 
-<!-- Main Content Section -->
 <div class="container mt-5">
     <div class="register-container">
         <h2 class="text-center mb-4">Register - Digital E Gram Panchayat</h2>
 
         <?php if ($message): ?>
-            <div class="alert alert-danger"><?php echo $message; ?></div>
+            <div class="alert alert-success"><?php echo $message; ?></div>
         <?php endif; ?>
 
         <form action="register.php" method="post">
@@ -97,7 +78,7 @@ mysqli_close($conn);
                 <input type="text" class="form-control" id="address" name="address" required>
             </div>
 
-            <!-- Qualification Dropdown with Choices -->
+            <!-- Qualification Dropdown -->
             <div class="form-group mb-3">
                 <label for="qualification">Qualification:</label>
                 <select id="qualification" name="qualification" class="form-control" required onchange="checkQualification()">
@@ -118,7 +99,6 @@ mysqli_close($conn);
             <div id="qualification-sub-choice" class="form-group mb-3" style="display:none;">
                 <label for="sub_qualification">Sub-Qualification:</label>
                 <select id="sub_qualification" name="sub_qualification" class="form-control">
-                    <!-- UG Sub-Choices -->
                     <option value="bsc">BSc</option>
                     <option value="bca">BCA</option>
                     <option value="bcom">BCom</option>
@@ -139,11 +119,12 @@ mysqli_close($conn);
                 </select>
             </div>
 
+            <!-- Occupation -->
             <div class="form-group mb-3" id="occupation-div" style="display:none;">
                 <label for="occupation">Occupation:</label>
-                <input type="text" class="form-control" id="occupation" name="occupation">
+                <input type="text" class="form-control" id="occupation" name="occupation" placeholder="Enter your occupation">
             </div>
-            
+
             <div class="form-group mb-3">
                 <label for="gov_id_proof">Government ID Proof (Aadhar/Driving Licence):</label>
                 <input type="text" class="form-control" id="gov_id_proof" name="gov_id_proof" required>
@@ -206,13 +187,11 @@ mysqli_close($conn);
                     <option value="Financial Analyst">Financial Analyst</option>
                     <option value="Account Manager">Account Manager</option>
                     <option value="Loan Officer">Loan Officer</option>
-                    <option value="Teller/Cashier">Teller/Cashier</option>
-                    <option value="Customer Service Representative">Customer Service Representative</option>
-                    <option value="Operations Officer">Operations Officer</option>
-                    <option value="Accountant">Accountant</option>
+                    <option value="Loan Recovery Officer">Loan Recovery Officer</option>
                 </select>
             </div>
 
+            <!-- Password and Confirm Password -->
             <div class="form-group mb-3">
                 <label for="password">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
@@ -225,49 +204,52 @@ mysqli_close($conn);
 
             <button type="submit" class="btn btn-primary btn-block">Register</button>
         </form>
-
-        <p class="text-center mt-3">Already have an account? <a href="login.php">Login here</a></p>
     </div>
 </div>
-
-<!-- Footer Section -->
-<footer class="bg-dark text-white py-4">
+<div class="text-center mt-3">
+    <p>Already have an account? <a href="login.php">Login here</a></p>
+</div>
+<footer class="bg-dark text-white py-3 mt-5">
     <div class="container text-center">
-        <p>&copy; 2024 Digital E Gram Panchayat. All rights reserved.</p>
+        <p>&copy; 2024 Digital E Gram Panchayat. All Rights Reserved.</p>
     </div>
 </footer>
 
-<!-- Add Bootstrap JS and jQuery -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 <script>
-    function checkQualification() {
-        const qualification = document.getElementById('qualification').value;
-        const subChoice = document.getElementById('qualification-sub-choice');
-        const pgChoice = document.getElementById('pg-sub-choice');
-        if (qualification === 'ug') {
-            subChoice.style.display = 'block';
-            pgChoice.style.display = 'none';
-        } else if (qualification === 'pg') {
-            pgChoice.style.display = 'block';
-            subChoice.style.display = 'none';
-        } else {
-            subChoice.style.display = 'none';
-            pgChoice.style.display = 'none';
-        }
+function displayDesignation() {
+    var role = document.getElementById("role").value;
+    if (role === "officer") {
+        document.getElementById("designation-div").style.display = "block";
+    } else {
+        document.getElementById("designation-div").style.display = "none";
+    }
+}
+
+function checkQualification() {
+    var qualification = document.getElementById("qualification").value;
+    var subChoice = document.getElementById("qualification-sub-choice");
+    var pgChoice = document.getElementById("pg-sub-choice");
+    var occupationDiv = document.getElementById("occupation-div");
+    
+    if (qualification === "ug") {
+        subChoice.style.display = "block";
+        pgChoice.style.display = "none";
+    } else if (qualification === "pg") {
+        pgChoice.style.display = "block";
+        subChoice.style.display = "none";
+    } else {
+        subChoice.style.display = "none";
+        pgChoice.style.display = "none";
     }
 
-    function displayDesignation() {
-        const role = document.getElementById('role').value;
-        const designationDiv = document.getElementById('designation-div');
-        if (role === 'officer' || role === 'staff') {
-            designationDiv.style.display = 'block';
-        } else {
-            designationDiv.style.display = 'none';
-        }
+    // Display occupation field for ITI/Diploma, and others
+    if (qualification === "iti_diploma" || qualification === "others") {
+        occupationDiv.style.display = "block";
+    } else {
+        occupationDiv.style.display = "none";
     }
+}
 </script>
+
 </body>
 </html>

@@ -1,7 +1,24 @@
 <?php
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "digital_e_gram_panchayat";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 // Initialize variables
 $message = '';
 $user_id = '';
+$staff_id = '';
+$officer_id = '';
+$photo_path = '';
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -23,16 +40,120 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role = htmlspecialchars($_POST['role']);
     $password = htmlspecialchars($_POST['password']);
     $confirm_password = htmlspecialchars($_POST['confirm_password']);
+    $officerdesignation = isset($_POST['officerdesignation']) ? htmlspecialchars($_POST['officerdesignation']) : '';
+    $staffdesignation = isset($_POST['staffdesignation']) ? htmlspecialchars($_POST['staffdesignation']) : '';
 
-    // Generate user ID based on first name, DOB, and current year
-    $dob_year = date("Y", strtotime($dob));  // Extract year from DOB
-    $user_id = strtolower($first_name) . $dob_year;  // Concatenate first name and year
+    // Generate user ID based on first name and DOB year
+    $dob_year = date("Y", strtotime($dob));
+    $user_id = strtolower($first_name) . $dob_year;
 
-    // Example message for demonstration
-    $message = "User ID generated: " . $user_id;
+    // Validate password confirmation
+    if ($password !== $confirm_password) {
+        $message = "Passwords do not match.";
+    } else {
+        // Validate and upload photo
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
+            $photo = $_FILES['photo'];
+            $allowed_types = ['image/jpeg', 'image/png'];
+            $dimensions = getimagesize($photo['tmp_name']);
+            if (in_array($photo['type'], $allowed_types) && $dimensions[0] == 200 && $dimensions[1] == 200) {
+                $photo_ext = pathinfo($photo['name'], PATHINFO_EXTENSION);
+                $photo_name = $user_id . "." . $photo_ext;
+                $photo_path = "uploads/" . $photo_name;
+                move_uploaded_file($photo['tmp_name'], $photo_path);
+            } else {
+                $message = "Invalid photo. Please upload a 200x200 passport-size photo in JPG or PNG format.";
+            }
+        }
 
-    // You can proceed with further processing like inserting data into the database, etc.
+        // Hash the password for security
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+        // Insert data based on role
+        if ($role == 'user') {
+            // Extract the year from the DOB
+            $dob_year = date('Y', strtotime($dob));
+            
+            // Generate user_id by concatenating first name and the year of birth
+            $user_id = $first_name . $dob_year;
+        
+            // Prepare the SQL statement for user insertion
+            $stmt = $conn->prepare("INSERT INTO users (user_id, first_name, last_name, address, qualification, sub_qualification, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            if (!$stmt) {
+                die("Prepare failed for User role: " . $conn->error);
+            }
+            
+            // Bind the parameters
+            $stmt->bind_param("sssssssssssssss", $user_id, $first_name, $last_name, $address, $qualification, $sub_qualification, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path);
+            
+            // Execute the statement
+            if ($stmt->execute()) {
+                $message = "User registration successful. Welcome, " . $first_name . ". Your user ID is " . $user_id . ".";
+                $_SESSION['user_id'] = $user_id;
+            } else {
+                $message = "Error: " . $stmt->error;
+            }
+        }
+         elseif ($role == 'staff') {
+            if (!empty($staffdesignation)) {
+                $staffdesignationWords = explode(" ", $staffdesignation);
+                $staffdesignationInitials = "";
+                foreach ($staffdesignationWords as $word) {
+                    $staffdesignationInitials .= strtoupper(substr($word, 0, 1));
+                }
+                $first_name_shortened = strtoupper(substr($first_name, 0, 3));
+                $staff_id = $first_name_shortened . $staffdesignationInitials;
+
+                // Generate a random secret number for staff login
+                $secret_number = rand(1000, 9999);
+
+                $stmt = $conn->prepare("INSERT INTO staff (user_id, first_name, last_name, address, qualification, occupation, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo, secret_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                if (!$stmt) {
+                    die("Prepare failed for Staff role: " . $conn->error);
+                }
+                $stmt->bind_param("ssssssssssssssss", $staff_id, $first_name, $last_name, $address, $qualification, $occupation, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path, $secret_number);
+                if ($stmt->execute()) {
+                    $message = "Staff registration successful. Generated Staff ID: $staff_id, Secret Number: $secret_number";
+                    $_SESSION['staff_id'] = $staff_id;
+                } else {
+                    $message = "Error executing the query: " . $stmt->error;
+                }
+            } else {
+                $message = "Please provide a valid Staff Designation.";
+            }
+        } elseif ($role == 'officer') {
+            // Officer Designation is fixed to "Panchayat Development Officer (PDO)"
+            $officerdesignation = "Panchayat Development Officer (PDO)";
+            
+            // Generate Officer ID based on first name and append "DEGPO"
+            $officer_id = strtoupper(substr($first_name, 0, 3)) . "DEGPO";
+    
+            // Generate a random secret number for officer login
+            $secret_number = rand(1000, 9999);
+    
+            $stmt = $conn->prepare("INSERT INTO officers (user_id, first_name, last_name, address, qualification, designation, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo, secret_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            if (!$stmt) {
+                die("Prepare failed for Officer role: " . $conn->error);
+            }
+            $stmt->bind_param("ssssssssssssssss", $officer_id, $first_name, $last_name, $address, $qualification, $officerdesignation, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path, $secret_number);
+            if ($stmt->execute()) {
+                $message = "Officer registration successful. Generated Officer ID: $officer_id, Secret Number: $secret_number";
+                $_SESSION['officer_id'] = $officer_id;
+            } else {
+                $message = "Error executing the query: " . $stmt->error;
+            }
+        } else {
+            // Other roles processing for 'user' and 'staff'
+        }
+    }
+    // Close the statement and connection
+    if (isset($stmt)) {
+        $stmt->close();
+    }
+    $conn->close();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -43,6 +164,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Register - Digital E Gram Panchayat</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <script>
+        // JavaScript to show sub-qualification and designation fields based on selection
+        function checkQualification() {
+            const qualification = document.getElementById("qualification").value;
+            document.getElementById("qualification-sub-choice").style.display = qualification === "ug" ? "block" : "none";
+            document.getElementById("pg-sub-choice").style.display = qualification === "pg" ? "block" : "none";
+        }
+
+        function displayDesignation() {
+            const role = document.getElementById("role").value;
+            document.getElementById("officer-designation-div").style.display = role === "officer" ? "block" : "none";
+            document.getElementById("staff-designation-div").style.display = role === "staff" ? "block" : "none";
+        }
+    </script>
 </head>
 <body>
 
@@ -57,11 +192,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="register-container">
         <h2 class="text-center mb-4">Register - Digital E Gram Panchayat</h2>
 
-        <?php if ($message): ?>
-            <div class="alert alert-success"><?php echo $message; ?></div>
+        <!-- Success Message Display -->
+        <?php if (isset($message) && $message): ?>
+            <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
         <?php endif; ?>
 
-        <form action="register.php" method="post">
+        <form action="register.php" method="post" enctype="multipart/form-data">
+            <!-- User Information Fields -->
             <div class="form-row mb-3">
                 <div class="col">
                     <label for="first_name">First Name:</label>
@@ -72,20 +209,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="text" class="form-control" id="last_name" name="last_name" required>
                 </div>
             </div>
+            <div class="form-group mb-3">
+                <label for="photo">Upload Photo (Passport size):</label>
+                <input type="file" name="photo" accept="image/jpeg, image/png" required>
+            </div>
 
+            <!-- Address and Qualification -->
             <div class="form-group mb-3">
                 <label for="address">Address:</label>
                 <input type="text" class="form-control" id="address" name="address" required>
             </div>
 
-            <!-- Qualification Dropdown -->
             <div class="form-group mb-3">
                 <label for="qualification">Qualification:</label>
                 <select id="qualification" name="qualification" class="form-control" required onchange="checkQualification()">
                     <option value="">Select Qualification</option>
                     <option value="doctor">Doctor</option>
                     <option value="be_btech_mtech">BE/B.Tech/M.Tech</option>
-                    <option value="ug">UG (Bsc, BCA, BCom, BBA, BA, Others)</option>
+                    <option value="ug">UG (BSc, BCA, BCom, BBA, BA, Others)</option>
                     <option value="pg">PG (MSc, MCA, MCom, MA, Others)</option>
                     <option value="iti_diploma">ITI/Diploma</option>
                     <option value="pu_plus12">PU/+12</option>
@@ -95,9 +236,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </select>
             </div>
 
-            <!-- Sub-choices for UG and PG Qualifications -->
+            <!-- UG and PG Sub-qualification Fields -->
             <div id="qualification-sub-choice" class="form-group mb-3" style="display:none;">
-                <label for="sub_qualification">Sub-Qualification:</label>
+                <label for="sub_qualification">Under Graduation:</label>
                 <select id="sub_qualification" name="sub_qualification" class="form-control">
                     <option value="bsc">BSc</option>
                     <option value="bca">BCA</option>
@@ -109,7 +250,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div id="pg-sub-choice" class="form-group mb-3" style="display:none;">
-                <label for="pg_qualification">PG Sub-Qualification:</label>
+                <label for="pg_qualification">Post Graduation:</label>
                 <select id="pg_qualification" name="pg_qualification" class="form-control">
                     <option value="msc">MSc</option>
                     <option value="mca">MCA</option>
@@ -120,36 +261,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <!-- Occupation -->
-            <div class="form-group mb-3" id="occupation-div" style="display:none;">
-                <label for="occupation">Occupation:</label>
-                <input type="text" class="form-control" id="occupation" name="occupation" placeholder="Enter your occupation">
+            <div class="form-group mb-3">
+                <label for="Occupation">Occupation:</label>
+                <select id="Occupation" name="Occupation" class="form-control" required>
+                    <option value="">Select Occupation</option>
+                    <option value="State Government Employee">State Government Employee</option>
+                    <option value="Central Government Employee">Central Government Employee</option>
+                    <option value="Ex-Service(Government/Defence)">Ex-Service(Government/Defence)</option>
+                    <option value="Private Sector Employee">Private Sector Employee</option>
+                    <option value="Panchayat Staff">Panchayat Staff</option>
+                    <option value="Farmer">Farmer</option>
+                    <option value="Self Employed">Self Employed</option>
+                    <option value="Unemployed/Day Labour">Unemployed/Day Labour</option>
+                    <option value="Student">Student</option>
+                </select>
             </div>
 
+            <!-- Government ID, PAN ID, Email, and Phone Number -->
             <div class="form-group mb-3">
                 <label for="gov_id_proof">Government ID Proof (Aadhar/Driving Licence):</label>
                 <input type="text" class="form-control" id="gov_id_proof" name="gov_id_proof" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="pan_id">PAN ID (Mandatory):</label>
                 <input type="text" class="form-control" id="pan_id" name="pan_id" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="email">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="phone">Phone Number:</label>
                 <input type="text" class="form-control" id="phone" name="phone" required>
             </div>
 
+            <!-- DOB, Gender, Title, Role -->
             <div class="form-group mb-3">
                 <label for="dob">Date of Birth:</label>
                 <input type="date" class="form-control" id="dob" name="dob" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="gender">Gender:</label>
                 <select id="gender" name="gender" class="form-control" required>
@@ -158,7 +308,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <option value="other">Other</option>
                 </select>
             </div>
-
             <div class="form-group mb-3">
                 <label for="title">Title:</label>
                 <select id="title" name="title" class="form-control" required>
@@ -168,7 +317,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <option value="master">Master</option>
                 </select>
             </div>
-
             <div class="form-group mb-3">
                 <label for="role">Role:</label>
                 <select id="role" name="role" class="form-control" required onchange="displayDesignation()">
@@ -178,25 +326,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </select>
             </div>
 
-            <div id="designation-div" class="form-group mb-3" style="display:none;">
-                <label for="designation">Designation:</label>
-                <select id="designation" name="designation" class="form-control">
-                    <option value="Bank Manager">Bank Manager</option>
-                    <option value="Relationship Manager">Relationship Manager</option>
-                    <option value="Credit Analyst">Credit Analyst</option>
-                    <option value="Financial Analyst">Financial Analyst</option>
-                    <option value="Account Manager">Account Manager</option>
-                    <option value="Loan Officer">Loan Officer</option>
-                    <option value="Loan Recovery Officer">Loan Recovery Officer</option>
+            <!-- Officer and Staff Designations (Officer designation will be default) -->
+            <div id="officer-designation-div" class="form-group mb-3" style="display:none;">
+                <label for="officer_designation">Officer Designation:</label>
+                <input type="text" id="officer_designation" name="officer_designation" class="form-control" value="Panchayat Development Officer (PDO)" readonly />
+            </div>
+
+            <div id="staff-designation-div" class="form-group mb-3" style="display:none;">
+                <label for="staffdesignation">Staff Designation:</label>
+                <select id="staffdesignation" name="staffdesignation" class="form-control">
+                    <option value="IT Coordinator">IT Coordinator</option>
+                    <option value="Data Entry Operator">Data Entry Operator</option>
+                    <!-- Add other staff designations as needed -->
                 </select>
             </div>
 
-            <!-- Password and Confirm Password -->
+            <!-- Password and Confirmation -->
             <div class="form-group mb-3">
                 <label for="password">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
-
             <div class="form-group mb-3">
                 <label for="confirm_password">Confirm Password:</label>
                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
@@ -205,51 +354,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="submit" class="btn btn-primary btn-block">Register</button>
         </form>
     </div>
-</div>
-<div class="text-center mt-3">
-    <p>Already have an account? <a href="login.php">Login here</a></p>
-</div>
-<footer class="bg-dark text-white py-3 mt-5">
+</div> <br>
+<div> <center>
+<p>Already have an account? <a href="Officer_login.php">Officer login</a>|
+<a href="staff_login.php">Staff Login </a>|
+<a href="user_login.php">User Login </a>|
+</p>
+        </center> </div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<footer class="bg-secondary text-white py-3 mt-5">
     <div class="container text-center">
         <p>&copy; 2024 Digital E Gram Panchayat. All Rights Reserved.</p>
     </div>
 </footer>
 
 <script>
+// Function to handle role selection and display specific fields accordingly
 function displayDesignation() {
-    var role = document.getElementById("role").value;
-    if (role === "officer") {
-        document.getElementById("designation-div").style.display = "block";
-    } else {
-        document.getElementById("designation-div").style.display = "none";
+    var role = document.getElementById("role").value;  // Get selected role
+
+    // Hide both designation fields initially
+    document.getElementById("officer-designation-div").style.display = "none";
+    document.getElementById("staff-designation-div").style.display = "none";
+
+    // Show the appropriate designation field based on role
+    if (role == "officer") {
+        // Automatically set the officer designation to PDO and hide the input field
+        document.getElementById("officer-designation-div").style.display = "block";  // Show officer designation
+    } else if (role == "staff") {
+        document.getElementById("staff-designation-div").style.display = "block";  // Show staff designation
+    } else if (role == "user") {
+        // If role is 'user', no designation fields are shown
     }
 }
 
+// Function to handle qualification-specific sub-choices
 function checkQualification() {
     var qualification = document.getElementById("qualification").value;
-    var subChoice = document.getElementById("qualification-sub-choice");
-    var pgChoice = document.getElementById("pg-sub-choice");
-    var occupationDiv = document.getElementById("occupation-div");
-    
-    if (qualification === "ug") {
-        subChoice.style.display = "block";
-        pgChoice.style.display = "none";
-    } else if (qualification === "pg") {
-        pgChoice.style.display = "block";
-        subChoice.style.display = "none";
+
+    // Show sub-choice for qualification if it's 'ug' or 'pg'
+    if (qualification == "ug") {
+        document.getElementById("qualification-sub-choice").style.display = "block";
+        document.getElementById("pg-sub-choice").style.display = "none";  // Hide pg options if UG is selected
     } else {
-        subChoice.style.display = "none";
-        pgChoice.style.display = "none";
+        document.getElementById("qualification-sub-choice").style.display = "none";
     }
 
-    // Display occupation field for ITI/Diploma, and others
-    if (qualification === "iti_diploma" || qualification === "others") {
-        occupationDiv.style.display = "block";
+    if (qualification == "pg") {
+        document.getElementById("pg-sub-choice").style.display = "block";
+        document.getElementById("qualification-sub-choice").style.display = "none";  // Hide UG options if PG is selected
     } else {
-        occupationDiv.style.display = "none";
+        document.getElementById("pg-sub-choice").style.display = "none";
     }
 }
+
+// Function to handle occupation-specific logic if needed
+function checkOccupation() {
+    // Add any occupation-specific logic here
+}
 </script>
+
 
 </body>
 </html>

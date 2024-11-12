@@ -1,8 +1,73 @@
 <?php
-// Start the session
 session_start();
 
+// Database connection setup
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "digital_e_gram_panchayat";
 
+// Initialize variables
+$message = '';
+$staff_id = '';
+$secret_number = '';
+$role = '';
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle form submission based on role-specific login
+if (isset($_POST['login_role'])) {
+    $role = $_POST['login_role'];
+    $staff_id = htmlspecialchars($_POST['staff_id']);
+    $secret_number = htmlspecialchars($_POST['secret_number']);
+
+    // Prepare SQL query
+    $stmt = $conn->prepare("SELECT designation FROM staff WHERE staff_id = ? AND secret_number = ?");
+
+    if ($stmt) {
+        $stmt->bind_param("ss", $staff_id, $secret_number);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($db_designation);
+            $stmt->fetch();
+
+            // Debugging: Output the fetched designation and selected role
+            echo "Database Role: " . $db_designation . "<br>";
+            echo "Role Selected: " . $role . "<br>";
+
+            // Check if fetched designation matches the selected role
+            if (strcasecmp(trim($db_designation), trim($role)) === 0) {
+                // Store session info and redirect
+                $_SESSION['staff_id'] = $staff_id;
+                $_SESSION['designation'] = $db_designation;
+
+                // Redirect based on role (can be dynamic depending on the role)
+                header("Location: " . strtolower(str_replace(' ', '_', $db_designation)) . ".php");
+                exit();
+            } else {
+                $message = "Invalid credentials for the selected role: " . htmlspecialchars($role) . ".";
+            }
+        } else {
+            $message = "Invalid Staff ID or Secret Number.";
+        }
+
+        $stmt->close();
+    } else {
+        $message = "Error preparing the SQL statement.";
+    }
+} else {
+    $message = "No login role specified.";
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -12,7 +77,6 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Interface - Digital E Gram Panchayat</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/staff_interface.css">
 </head>
 <body>
 
@@ -51,48 +115,64 @@ session_start();
             </div>
         </nav>
 
-        <!-- Main Content -->
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-9 px-4">
-            <h2>Welcome, Staff Member!</h2>
-            <p class="lead">Manage requests and oversee assigned villages through the Digital E Gram Panchayat system.</p>
-
-            <!-- Overview Section -->
+        <!-- Login Section -->
+        <div class="col-md-9">
+            <h2>Select Your Role to Log In</h2>
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="card text-white bg-info">
-                        <div class="card-body">
-                            <h5 class="card-title">Assigned Villages</h5>
-                            <p class="card-text">15</p> <!-- Replace with dynamic value -->
+                <?php 
+                // Define roles
+                $designation = [
+                    "IT Coordinator", "Village Manager", "Data Entry Operator",
+                    "Citizen Services Helpdesk Operator", "Digital Service Manager", 
+                    "Financial Inclusion Officer", "Health and Sanitation Officer", 
+                    "Social Welfare Officer", "Agriculture Officer", "Project Coordinator"
+                ];
+
+                // Create a button for each role with modal for login
+                foreach ($designation as $role): 
+                    $modal_id = strtolower(str_replace(' ', '_', $role)) . "_modal";
+                ?>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#<?= $modal_id; ?>">
+                            <?= $role; ?>
+                        </button>
+                    </div>
+
+                    <!-- Modal for each role -->
+                    <div class="modal fade" id="<?= $modal_id; ?>" tabindex="-1" role="dialog" aria-labelledby="<?= $modal_id; ?>Label" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="<?= $modal_id; ?>Label"><?= $role; ?> Login</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="staff_interface.php" method="post">
+                                        <input type="hidden" name="login_role" value="<?= $role; ?>">
+                                        <div class="form-group">
+                                            <label for="staff_id">Staff ID:</label>
+                                            <input type="text" class="form-control" name="staff_id" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="secret_number">Secret Number:</label>
+                                            <input type="password" class="form-control" name="secret_number" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Login</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card text-white bg-success">
-                        <div class="card-body">
-                            <h5 class="card-title">Pending Requests</h5>
-                            <p class="card-text">8</p> <!-- Replace with dynamic value -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card text-white bg-warning">
-                        <div class="card-body">
-                            <h5 class="card-title">Issues Reported</h5>
-                            <p class="card-text">2</p> <!-- Replace with dynamic value -->
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
 
-            <!-- Recent Requests Section -->
-            <h3>Recent Requests</h3>
-            <ul class="list-group">
-                <li class="list-group-item">Road repair request in Village B</li>
-                <li class="list-group-item">Water supply improvement request in Village A</li>
-                <li class="list-group-item">Electricity connection issue in Village C</li>
-                <!-- Add more requests dynamically -->
-            </ul>
-        </main>
+            <!-- Display error message if any -->
+            <?php if ($message): ?>
+                <div class="alert alert-danger mt-4"><?php echo $message; ?></div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
@@ -102,7 +182,7 @@ session_start();
     </div>
 </footer>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

@@ -71,48 +71,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Insert data based on role
         if ($role == 'user') {
-            // Extract the year from the DOB
-            $dob_year = date('Y', strtotime($dob));
-            
-            // Generate user_id by concatenating first name and the year of birth
-            $user_id = $first_name . $dob_year;
-        
-            // Prepare the SQL statement for user insertion
             $stmt = $conn->prepare("INSERT INTO users (user_id, first_name, last_name, address, qualification, sub_qualification, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            
-            if (!$stmt) {
-                die("Prepare failed for User role: " . $conn->error);
-            }
-            
-            // Bind the parameters
+            if (!$stmt) die("Prepare failed for User role: " . $conn->error);
             $stmt->bind_param("sssssssssssssss", $user_id, $first_name, $last_name, $address, $qualification, $sub_qualification, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path);
-            
-            // Execute the statement
             if ($stmt->execute()) {
                 $message = "User registration successful. Welcome, " . $first_name . ". Your user ID is " . $user_id . ".";
                 $_SESSION['user_id'] = $user_id;
             } else {
                 $message = "Error: " . $stmt->error;
             }
-        }
-         elseif ($role == 'staff') {
+        } elseif ($role == 'staff') {
             if (!empty($staffdesignation)) {
-                $staffdesignationWords = explode(" ", $staffdesignation);
-                $staffdesignationInitials = "";
-                foreach ($staffdesignationWords as $word) {
-                    $staffdesignationInitials .= strtoupper(substr($word, 0, 1));
-                }
-                $first_name_shortened = strtoupper(substr($first_name, 0, 3));
-                $staff_id = $first_name_shortened . $staffdesignationInitials;
+                $staff_id = strtoupper(substr($first_name, 0, 3)) . substr(md5(uniqid(mt_rand(), true)), 0, 3);
 
                 // Generate a random secret number for staff login
                 $secret_number = rand(1000, 9999);
-
-                $stmt = $conn->prepare("INSERT INTO staff (user_id, first_name, last_name, address, qualification, occupation, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo, secret_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                if (!$stmt) {
-                    die("Prepare failed for Staff role: " . $conn->error);
-                }
-                $stmt->bind_param("ssssssssssssssss", $staff_id, $first_name, $last_name, $address, $qualification, $occupation, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path, $secret_number);
+        
+                // Prepare the SQL statement for inserting the staff data
+                $stmt = $conn->prepare("INSERT INTO staff (staff_id, first_name, last_name, address, qualification, occupation, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo, secret_number, designation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
+                if (!$stmt) die("Prepare failed for Staff role: " . $conn->error);
+        
+                // Bind the parameters (ensure all variables are properly assigned)
+                $stmt->bind_param("sssssssssssssssss", $staff_id, $first_name, $last_name, $address, $qualification, $occupation, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path, $secret_number, $staffdesignation);
+        
+                // Execute the statement
                 if ($stmt->execute()) {
                     $message = "Staff registration successful. Generated Staff ID: $staff_id, Secret Number: $secret_number";
                     $_SESSION['staff_id'] = $staff_id;
@@ -123,19 +106,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message = "Please provide a valid Staff Designation.";
             }
         } elseif ($role == 'officer') {
-            // Officer Designation is fixed to "Panchayat Development Officer (PDO)"
             $officerdesignation = "Panchayat Development Officer (PDO)";
-            
-            // Generate Officer ID based on first name and append "DEGPO"
             $officer_id = strtoupper(substr($first_name, 0, 3)) . "DEGPO";
-    
-            // Generate a random secret number for officer login
             $secret_number = rand(1000, 9999);
-    
             $stmt = $conn->prepare("INSERT INTO officers (user_id, first_name, last_name, address, qualification, designation, gov_id_proof, pan_id, email, phone, dob, gender, title, password, photo, secret_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            if (!$stmt) {
-                die("Prepare failed for Officer role: " . $conn->error);
-            }
+            if (!$stmt) die("Prepare failed for Officer role: " . $conn->error);
             $stmt->bind_param("ssssssssssssssss", $officer_id, $first_name, $last_name, $address, $qualification, $officerdesignation, $gov_id_proof, $pan_id, $email, $phone, $dob, $gender, $title, $hashed_password, $photo_path, $secret_number);
             if ($stmt->execute()) {
                 $message = "Officer registration successful. Generated Officer ID: $officer_id, Secret Number: $secret_number";
@@ -144,16 +119,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message = "Error executing the query: " . $stmt->error;
             }
         } else {
-            // Other roles processing for 'user' and 'staff'
+            $message = "Invalid role provided.";
         }
     }
+    
     // Close the statement and connection
     if (isset($stmt)) {
         $stmt->close();
     }
     $conn->close();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -337,6 +312,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <select id="staffdesignation" name="staffdesignation" class="form-control">
                     <option value="IT Coordinator">IT Coordinator</option>
                     <option value="Data Entry Operator">Data Entry Operator</option>
+                    <option value="Citizen Services Helpdesk Operator">Citizen Services Helpdesk Operator</option>
+                    <option value="Digital Service Manager">Digital Service Manager</option>
+                    <option value="Financial Inclusion Officer">Financial Inclusion Officer</option>
+                    <option value="Health & Sanitation Officer">Health & Sanitation Officer</option>
+                    <option value="Social Welfare Officer">Social Welfare Officer</option>
+                    <option value="Agriculture Officer">Agriculture Officer</option>
+                    <option value="Project Coordinator">Project Coordinator</option>
                     <!-- Add other staff designations as needed -->
                 </select>
             </div>

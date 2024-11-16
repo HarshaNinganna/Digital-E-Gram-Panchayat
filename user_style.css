@@ -1,107 +1,330 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fb;
+    color: #444;
+    line-height: 1.6;
+}
+/* Header Styles */
+header {
+    background-color: #0066cc;
+    padding: 15px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Space between logo (left) and buttons (right) */
+    width: 100%;
+    align-items: center; /* Align items vertically center */
+}
+
+/* Logo Styling */
+.logo h1 {
+    font-size: 2rem;
+    color: #fff;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* Navbar Styling */
+.navbar ul {
+    list-style: none;
+    display: flex;
     margin: 0;
     padding: 0;
 }
 
-header {
+.navbar ul li {
+    margin-right: 15px; /* Reduced spacing between navbar items */
+}
+
+.navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 10px;
+    border: 2px solid transparent;
+    transition: color 0.3s ease, border 0.3s ease;
+}
+
+/* Navbar Item Hover */
+.navbar ul li a:hover {
+    color: #ff6f61;
+    border-bottom: 2px solid #ff6f61; /* Border on hover */
+}
+
+/* Dropdown container - aligned to left */
+.login {
+    display: inline-block; /* Keep buttons in a row */
+    margin-right: 10px; /* Reduced space between buttons */
+    align-self: flex-start; /* Align buttons to the left */
+}
+
+/* Dropdown button */
+.login-btn {
+    cursor: pointer;
+    display: inline-block; /* Ensure buttons stay in a row */
+    text-decoration: none;
+    background-color: transparent; /* Transparent background */
+    color: #fff;
+    padding: 8px 20px;
+    border: 2px solid transparent; /* Transparent border initially */
+    border-radius: 0px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dropdown button hover */
+.login-btn:hover {
+    background-color: transparent;
+    border-color: #fff; /* Border appears on hover */
+    color: #fff; /* Change text color on hover */
+}
+
+/* The dropdown menu */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 0px;
+    margin-top: 5px;
+}
+
+/* Dropdown menu links */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 1rem;
+}
+
+/* Dropdown link hover */
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+/* Show the dropdown when active */
+.show {
+    display: block;
+}
+
+/* Image Styles - Ensuring Uniform Size */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover; /* Ensure that images cover their container without distortion */
+}
+
+.card img,
+.section-image img {
+    width: 100%;
+    height: 200px; /* Standardize height */
+    object-fit: cover; /* Ensure images maintain aspect ratio without stretching */
+    border-radius: 10px;
+}
+
+/* Section Styles - Creating Consistent Layout for Images */
+.section {
+    margin-top: 40px;
+}
+
+.section h2 {
+    font-size: 2rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.section-images {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background-color: #2f74b5;
-    padding: 1rem 2rem;
-    color: #fff;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.header-left {
-    display: flex;
-    align-items: center;
-}
-
-.header-left h1 {
-    margin-right: 20px;
-    font-size: 1.5rem;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-}
-
-.header-right a, .header-left a {
-    color: #fff;
-    margin: 0 10px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.header-right a:hover, .header-left a:hover {
-    text-decoration: underline;
-}
-
-.login-btn {
-    background-color: #ffeb3b;
-    color: #333;
-    padding: 0.4rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.login-btn:hover {
-    background-color: #f0c800;
-    color: #222;
-}
-
-nav {
-    background-color: #3b8ec2;
-}
-
-nav .navbar-nav .nav-link {
-    color: #fff !important;
-    font-weight: bold;
-    transition: color 0.3s;
-}
-
-nav .navbar-nav .nav-link:hover {
-    color: #ffeb3b !important;
-}
-
-main {
-    padding: 2rem 0;
-}
-
-section {
+.section-images .image-card {
+    width: 100%;
+    max-width: 320px;
     background-color: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-section h2 {
-    color: #2f74b5;
-    margin-bottom: 1rem;
+.section-images .image-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+.image-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.image-card .card-body {
+    padding: 15px;
+}
+
+.image-card .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #0066cc;
+}
+
+.image-card .card-text {
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Footer Styles */
 footer {
-    background-color: #2f74b5;
+    background-color: #333;
     color: #fff;
-    padding: 1rem;
+    padding: 20px 0;
     text-align: center;
 }
 
-.btn-primary-custom {
-    background-color: #2f74b5;
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1.5rem;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+footer p {
+    margin: 5px 0;
 }
 
-.btn-primary-custom:hover {
-    background-color: #245a88;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar ul {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 0;
+    }
+
+    .navbar ul li {
+        margin-bottom: 10px;
+    }
+
+    .section-images {
+        justify-content: center;
+    }
+
+    .section-images .image-card {
+        max-width: 100%;
+    }
+
+    .login-btn {
+        padding: 10px 15px;
+    }
+
+    .dropdown-content {
+        min-width: 140px;
+    }
+}
+.about_us {
+    background-color: #eef2f5;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about_us h3 {
+    font-size: 2rem;
+    color: #005f73;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.about_us p {
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.about_us h4 {
+    font-size: 1.5rem;
+    color: #0096c7;
+    margin-top: 20px;
+}
+
+.about_us ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: 20px;
+}
+
+.about_us ul li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #444;
+}
+
+.about_us a {
+    color: #0096c7;
+    text-decoration: none;
+}
+
+.about_us a:hover {
+    text-decoration: underline;
+}
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Background */
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    margin: 10% auto;
+    border-radius: 8px;
+    width: 50%;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+
+#profileDetails {
+    margin-top: 20px;
+}
+
+/* Close Button */
+.btn {
+    background-color: #0066cc;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: #004c99;
 }

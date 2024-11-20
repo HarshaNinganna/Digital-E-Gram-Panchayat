@@ -1,11 +1,23 @@
 <?php
-session_start();
+session_start(); // Start the session if it's not already started
 
-// Destroy all session data
-session_unset();
-session_destroy();
+// Clear the session data
+$_SESSION = [];
 
-// Redirect to the login page
-header("Location: login.php");
-exit;
+// If you want to delete the session cookie (optional)
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(
+        session_name(), 
+        '', 
+        time() - 42000, 
+        $params['path'], 
+        $params['domain'], 
+        $params['secure'], 
+        $params['httponly']
+    );
+}
+
+// Destroy the session
+session_destroy(); 
 ?>

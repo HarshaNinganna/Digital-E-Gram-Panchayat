@@ -1,0 +1,233 @@
+/* Staff Dashboard */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Styling */
+header {
+    background-color: #ff9900;
+    padding: 15px 20px;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Spread items across the header */
+    align-items: center; /* Vertically center items */
+    width: 100%;
+}
+
+/* Logo Styling */
+.logo h1 {
+    font-size: 2rem;
+    color: #fff;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* Navbar Styling */
+.navbar ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar ul li {
+    margin-right: 15px;
+}
+
+.navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 10px;
+    border: 2px solid transparent;
+    transition: color 0.3s ease, border 0.3s ease;
+}
+
+/* Navbar Item Hover */
+.navbar ul li a:hover {
+    color: #ff6f61;
+    border-bottom: 2px solid #ff6f61;
+}
+
+/* Login Button */
+.login {
+    display: inline-flex; /* This ensures buttons are in a row */
+    justify-content: flex-start; /* Align buttons to the left */
+    margin-left: 15px; /* Space from navbar */
+}
+
+.login-btn {
+    cursor: pointer;
+    text-decoration: none;
+    background-color: transparent;
+    color: #fff;
+    padding: 8px 20px;
+    border: 2px solid transparent;
+    border-radius: 0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    margin: 0 10px; /* Space between buttons */
+}
+
+.login-btn:hover {
+    border-color: #fff;
+    color: #fff;
+}
+
+h2 {
+    color: #333;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+h3 {
+    color: #333;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-bordered {
+    border: 1px solid #ddd;
+}
+
+.table-bordered th, .table-bordered td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.table-bordered th {
+    background-color: #343a40;
+    color: white;
+}
+
+.table-bordered td {
+    background-color: #fff;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+table td form {
+    display: inline;
+    margin-right: 5px;
+}
+
+.table td form button {
+    width: 100px;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 40px 0;
+}
+
+footer .social-icons a {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+footer .social-icons a:hover {
+    color: #007bff;
+}
+
+footer .footer-bottom {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+footer a {
+    color: white;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.modal-content {
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid #ddd;
+    text-align: right;
+}
+
+button.btn {
+    width: 100%;
+}
+
+button.btn-block {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+
+.social-icons a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.social-icons a:hover {
+    color: #007bff;
+}
+
+footer .footer-bottom {
+    font-size: 14px;
+    color: #ccc;
+}
+
+footer .footer-bottom a {
+    color: #ccc;
+}
+
+footer .footer-bottom a:hover {
+    color: white;
+}

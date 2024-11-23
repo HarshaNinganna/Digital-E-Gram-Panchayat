@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Start the session
 session_start();
 
@@ -36,10 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['application_id']) && i
     }
 }
 
-// Fetch all applications with service details
-$query = "SELECT applications.application_id, applications.applicant_name, applications.status, services.service_name
+// Fetch all applications with service details and applicant name
+$query = "SELECT applications.application_id, CONCAT(users.first_name, ' ', users.last_name) AS applicant_name, applications.status, services.service_name
           FROM applications
-          INNER JOIN services ON applications.service_id = services.service_id";
+          INNER JOIN services ON applications.service_id = services.service_id
+          INNER JOIN users ON applications.user_id = users.user_id";  // Join users table to get applicant name
 
 $result = $conn->query($query);
 
@@ -63,92 +64,124 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Application Status - Digital E Gram Panchayat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/staff-style.css">
 </head>
 <body>
 
 <header class="bg-dark text-white py-3">
     <div class="container">
-        <h1 class="text-center mb-0">Update Application Status - Digital E Gram Panchayat</h1>
+        <h1 class="text-center mb-0">Panchayath Officer Dashboard</h1>
     </div>
+    <center>
+    <div class="login">
+            <a href="#nome" class="login-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+
+        <div class="login">
+            <a href="http://localhost/Digital%20E%20Gram%20Panchayat/admin/create_service.php" class="login-btn">
+                <i class="fas fa-gear"></i> Create Service
+            </a>
+        </div>
+
+        <div class="login">
+        <a href="http://localhost/Digital%20E%20Gram%20Panchayat/admin/update_service.php" class="login-btn">
+                <i class="fas fa-people-roof"></i> Manage Service
+            </a>
+        </div>
+        <div class="login">
+        <a href="http://localhost/Digital%20E%20Gram%20Panchayat/admin/update_application_status.php" class="login-btn">
+                <i class="fas fa-envelope-open-text"></i> Update Application Status
+            </a>
+        </div>
+        <div class="login">
+        <a href="/Digital E Gram Panchayat/auth/logout.php" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Logout
+        </a>
+        </div>
+</center>
 </header>
 
 <div class="container mt-4">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-3 bg-light sidebar py-4">
-            <div class="sidebar-sticky">
-                <h5>Menu</h5>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="Officer_dashboard.php">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="create_service.php">Create Service</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="manage_services.php">Manage Services</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="update_application_status.php">Update Application Status</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+    <!-- Main Content -->
+    <main role="main">
+        <h2>Update Application Status</h2>
 
-        <!-- Main Content -->
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-9 px-4">
-            <h2>Update Application Status</h2>
+        <!-- Display message -->
+        <?php if (isset($message)): ?>
+            <div class="alert alert-info"><?php echo $message; ?></div>
+        <?php endif; ?>
 
-            <!-- Display message -->
-            <?php if (isset($message)): ?>
-                <div class="alert alert-info"><?php echo $message; ?></div>
-            <?php endif; ?>
-
-            <!-- Table of Applications -->
-            <table class="table table-striped">
-                <thead>
+        <!-- Table of Applications -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Application ID</th>
+                    <th>Applicant Name</th>
+                    <th>Service Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($applications as $application): ?>
                     <tr>
-                        <th>Application ID</th>
-                        <th>Applicant Name</th>
-                        <th>Service Name</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <td><?php echo $application['application_id']; ?></td>
+                        <td><?php echo $application['applicant_name']; ?></td>
+                        <td><?php echo $application['service_name']; ?></td>
+                        <td>
+                            <form action="update_application_status.php" method="POST">
+                                <select name="status" class="form-control" required>
+                                    <option value="Pending" <?php echo ($application['status'] == 'Pending') ? 'selected' : ''; ?>>Pending</option>
+                                    <option value="Approved" <?php echo ($application['status'] == 'Approved') ? 'selected' : ''; ?>>Approved</option>
+                                    <option value="Rejected" <?php echo ($application['status'] == 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
+                                </select>
+                                <input type="hidden" name="application_id" value="<?php echo $application['application_id']; ?>">
+                                <button type="submit" class="btn btn-primary btn-sm mt-2">Update Status</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($applications as $application): ?>
-                        <tr>
-                            <td><?php echo $application['application_id']; ?></td>
-                            <td><?php echo $application['applicant_name']; ?></td>
-                            <td><?php echo $application['service_name']; ?></td>
-                            <td>
-                                <form action="update_application_status.php" method="POST">
-                                    <select name="status" class="form-control" required>
-                                        <option value="Pending" <?php echo ($application['status'] == 'Pending') ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="Approved" <?php echo ($application['status'] == 'Approved') ? 'selected' : ''; ?>>Approved</option>
-                                        <option value="Rejected" <?php echo ($application['status'] == 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
-                                    </select>
-                                    <input type="hidden" name="application_id" value="<?php echo $application['application_id']; ?>">
-                                    <button type="submit" class="btn btn-primary btn-sm mt-2">Update Status</button>
-                                </form>
-                            </td>
-                            <td></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </main>
-    </div>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </main>
 </div>
 
-<footer class="bg-dark text-white py-3 mt-5">
-    <div class="container text-center">
-        <p>&copy; 2024 Digital E Gram Panchayat. All Rights Reserved.</p>
+<footer class="footer bg-dark text-white py-5 mt-4">
+    <div class="container">
+        <!-- Footer Content -->
+        <div class="row">
+            <!-- Left Section: About Us or Contact Information -->
+            <div class="col-md-4">
+                <h4>About Gram Panchayat</h4>
+                <p>We are committed to delivering digital governance and services for rural development. Join us in creating a digital future.</p>
+            </div>
+
+            <!-- Middle Section: Contact Information -->
+            <div class="col-md-4">
+                <h4>Contact Us</h4>
+                <p>Email: <a href="mailto:info@grampanchayatservices.com" class="text-white">info@grampanchayatservices.com</a></p>
+                <p>Phone: <a href="tel:+911234567890" class="text-white">+91 123 456 7890</a></p>
+            </div>
+
+            <!-- Right Section: Social Media Links -->
+            <div class="col-md-4">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom text-center mt-4">
+            <p>&copy; 2024 Gram Panchayat Services | All Rights Reserved</p>
+        </div>
     </div>
 </footer>
 

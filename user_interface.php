@@ -113,7 +113,25 @@ $conn->close();
     <link rel="stylesheet" href="../assets/css/user_style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    
+    <script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getAnalytics } from "firebase/analytics";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNr76sV3W9EYNfwJ-_A95vbpW503_46SE",
+    authDomain: "digital-e-gram-panchayat-6702f.firebaseapp.com",
+    projectId: "digital-e-gram-panchayat-6702f",
+    storageBucket: "digital-e-gram-panchayat-6702f.firebasestorage.app",
+    messagingSenderId: "760029374096",
+    appId: "1:760029374096:web:e822242264a6b20c609a15",
+    measurementId: "G-XDSQQKXV5H"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
 </head>
 <body>
 <header>

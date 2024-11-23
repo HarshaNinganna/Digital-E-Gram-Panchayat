@@ -53,19 +53,18 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Public Notices - Digital E Gram Panchayat</title>
-    <link rel="stylesheet" href="../assets/css/user_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/staff-style.css">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="header-left">
-            <h1>Digital E Gram Panchayat</h1>
-        </div>
-        <div class="header-right">
-            <a href="logout.php" class="btn btn-danger">Logout</a>
-        </div>
-    </header>
+
+<header class="bg-dark text-white py-3">
+    <div class="container">
+        <h1 class="text-center mb-0">Officer Dashboard - Create Public Notice</h1>
+    </div>
+    
+</header>
 
     <!-- Message Section -->
     <?php if ($message): ?>
@@ -111,11 +110,42 @@ $conn->close();
         <?php endif; ?>
     </div>
 
-    <!-- Footer -->
-    <footer class="text-center mt-4">
-        <p>&copy; 2024 Digital E Gram Panchayat | All Rights Reserved</p>
-    </footer>
+    <footer class="footer bg-dark text-white py-5 mt-4">
+    <div class="container">
+        <!-- Footer Content -->
+        <div class="row">
+            <!-- Left Section: About Us or Contact Information -->
+            <div class="col-md-4">
+                <h4>About Gram Panchayat</h4>
+                <p>We are committed to delivering digital governance and services for rural development. Join us in creating a digital future.</p>
+            </div>
 
+            <!-- Middle Section: Contact Information -->
+            <div class="col-md-4">
+                <h4>Contact Us</h4>
+                <p>Email: <a href="mailto:info@grampanchayatservices.com" class="text-white">info@grampanchayatservices.com</a></p>
+                <p>Phone: <a href="tel:+911234567890" class="text-white">+91 123 456 7890</a></p>
+            </div>
+
+            <!-- Right Section: Social Media Links -->
+            <div class="col-md-4">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer" id="footer">
+        <div class="footer-bottom text-center mt-4">
+            <p>&copy; 2024 Gram Panchayat Services | All Rights Reserved</p>
+        </div>
+    </div>
+</footer>
     <!-- Bootstrap JS, jQuery, and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>

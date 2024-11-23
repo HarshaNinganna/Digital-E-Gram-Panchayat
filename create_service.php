@@ -152,12 +152,41 @@ $conn->close();
     </table>
 </div>
 
-<footer class="bg-dark text-white py-3 mt-5">
-    <div class="container text-center">
-        <p>&copy; 2024 Digital E Gram Panchayat. All Rights Reserved.</p>
+<footer class="footer bg-dark text-white py-5 mt-4">
+    <div class="container">
+        <!-- Footer Content -->
+        <div class="row">
+            <!-- Left Section: About Us or Contact Information -->
+            <div class="col-md-4">
+                <h4>About Gram Panchayat</h4>
+                <p>We are committed to delivering digital governance and services for rural development. Join us in creating a digital future.</p>
+            </div>
+
+            <!-- Middle Section: Contact Information -->
+            <div class="col-md-4">
+                <h4>Contact Us</h4>
+                <p>Email: <a href="mailto:info@grampanchayatservices.com" class="text-white">info@grampanchayatservices.com</a></p>
+                <p>Phone: <a href="tel:+911234567890" class="text-white">+91 123 456 7890</a></p>
+            </div>
+
+            <!-- Right Section: Social Media Links -->
+            <div class="col-md-4">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom text-center mt-4">
+            <p>&copy; 2024 Gram Panchayat Services | All Rights Reserved</p>
+        </div>
     </div>
 </footer>
-
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -1,18 +1,41 @@
 <?php
-// application.php
-
-// Start a session (if needed for form handling or future user tracking)
+// Start session
 session_start();
+
+// Initialize database connection
+$conn = new mysqli("localhost", "root", "", "digital_e_gram_panchayat");
+
+// Check for database connection errors
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Check if the service_id is passed as a query parameter
 if (isset($_GET['service_id'])) {
-    $service_id = htmlspecialchars($_GET['service_id']); // Secure the input
+    $service_id = (int)$_GET['service_id']; // Ensure service_id is treated as an integer
+
+    // Fetch service details from the database
+    $stmt = $conn->prepare("SELECT service_id, service_name FROM services WHERE service_id = ?");
+    $stmt->bind_param("i", $service_id);
+    $stmt->execute();
+    $stmt->store_result();
+
+    // If no matching service found, show error
+    if ($stmt->num_rows == 0) {
+        die("Invalid service ID. Please try again.");
+    } else {
+        // Fetch the service details
+        $stmt->bind_result($fetched_service_id, $service_name);
+        $stmt->fetch();
+        $stmt->close();
+    }
 } else {
     // Redirect or show an error if service_id is not provided
-    header("Location: service.php"); // Assuming 'services.php' lists all services
-    exit;
+    die("No service ID provided.");
 }
 
+// Close the database connection
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -26,8 +49,9 @@ if (isset($_GET['service_id'])) {
 <body>
 <div class="container mt-5">
     <h2 class="text-center">Apply for Service</h2>
-    <p class="text-muted text-center">Service ID: <?= $service_id; ?></p>
-    
+    <p class="text-muted text-center">Service Name: <?= htmlspecialchars($service_name); ?></p>
+
+    <!-- Application Form -->
     <form action="submit_application.php" method="post">
         <input type="hidden" name="service_id" value="<?= $service_id; ?>">
         

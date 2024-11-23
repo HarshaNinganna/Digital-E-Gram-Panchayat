@@ -4,7 +4,7 @@ session_start();
 
 // Ensure the officer is logged in
 if (!isset($_SESSION['officer_id'])) {
-    header("Location: officer_login.php"); // Redirect to login if not logged in
+    header("Location: /Digital E Gram Panchayat/auth/officer_login.php");
     exit();
 }
 
@@ -54,92 +54,95 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Services - Digital E Gram Panchayat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/staff-style.css">
 </head>
 <body>
 
 <header class="bg-dark text-white py-3">
     <div class="container">
-        <h1 class="text-center mb-0">Manage Services - Digital E Gram Panchayat</h1>
+        <h1 class="text-center mb-0">Panchayath Officer Dashboard</h1>
     </div>
+    <center>
+    <div class="login">
+            <a href="#nome" class="login-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+
+        <div class="login">
+            <a href="http://localhost/Digital%20E%20Gram%20Panchayat/admin/create_service.php" class="login-btn">
+                <i class="fas fa-gear"></i> Create Service
+            </a>
+        </div>
+
+        <div class="login">
+        <a href="http://localhost/Digital%20E%20Gram%20Panchayat/admin/update_service.php" class="login-btn">
+                <i class="fas fa-people-roof"></i> Manage Service
+            </a>
+        </div>
+        <div class="login">
+        <a href="http://localhost/Digital%20E%20Gram%20Panchayat/admin/update_application_status.php" class="login-btn">
+                <i class="fas fa-envelope-open-text"></i> Update Application Status
+            </a>
+        </div>
+        <div class="login">
+        <a href="/Digital E Gram Panchayat/auth/logout.php" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Logout
+        </a>
+        </div>
+</center>
 </header>
 
 <div class="container mt-4">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-3 bg-light sidebar py-4">
-            <div class="sidebar-sticky">
-                <h5>Menu</h5>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="Officer_dashboard.php">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="manage_services.php">Manage Services</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="update_application_status.php">Update Application Status</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" href="logout.php">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+    <h2 class="text-center">Manage Services</h2>
 
-        <!-- Main Content -->
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-9 px-4">
-            <h2>Manage Services</h2>
+    <!-- Display message -->
+    <?php if (!empty($message)): ?>
+        <div class="alert alert-info text-center"><?php echo $message; ?></div>
+    <?php endif; ?>
 
-            <!-- Display message -->
-            <?php if (!empty($message)): ?>
-                <div class="alert alert-info"><?php echo $message; ?></div>
-            <?php endif; ?>
-
-            <!-- Display Existing Services -->
-            <h3 class="mt-5">Existing Services</h3>
-            <?php if ($services_result && $services_result->num_rows > 0): ?>
-                <table class="table table-striped mt-3">
-                    <thead>
-                        <tr>
-                            <th>Service ID</th>
-                            <th>Service Name</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($service = $services_result->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo $service['service_id']; ?></td>
-                                <td><?php echo $service['service_name']; ?></td>
-                                <td><?php echo $service['service_description']; ?></td>
-                                <td><?php echo $service['service_category']; ?></td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editModal" 
-                                        data-id="<?php echo $service['service_id']; ?>" 
-                                        data-name="<?php echo $service['service_name']; ?>" 
-                                        data-description="<?php echo $service['service_description']; ?>" 
-                                        data-category="<?php echo $service['service_category']; ?>">
-                                        Edit
-                                    </button>
-                                    <a href="delete_service.php?service_id=<?php echo $service['service_id']; ?>" 
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Are you sure you want to delete this service?');">
-                                       Delete
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p class="text-muted">No services found. Please create a new service.</p>
-            <?php endif; ?>
-        </main>
-    </div>
+    
+    <?php if ($services_result && $services_result->num_rows > 0): ?>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Service ID</th>
+                    <th>Service Name</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($service = $services_result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo $service['service_id']; ?></td>
+                        <td><?php echo $service['service_name']; ?></td>
+                        <td><?php echo $service['service_description']; ?></td>
+                        <td><?php echo $service['service_category']; ?></td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editModal" 
+                                data-id="<?php echo $service['service_id']; ?>" 
+                                data-name="<?php echo $service['service_name']; ?>" 
+                                data-description="<?php echo $service['service_description']; ?>" 
+                                data-category="<?php echo $service['service_category']; ?>">
+                                Edit
+                            </button>
+                            <a href="delete_service.php?service_id=<?php echo $service['service_id']; ?>" 
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Are you sure you want to delete this service?');">
+                               Delete
+                            </a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p class="text-muted text-center">No services found. Please create a new service.</p>
+    <?php endif; ?>
 </div>
 
 <!-- Edit Service Modal -->
@@ -177,12 +180,41 @@ $conn->close();
     </div>
 </div>
 
-<footer class="bg-dark text-white py-3 mt-5">
-    <div class="container text-center">
-        <p>&copy; 2024 Digital E Gram Panchayat. All Rights Reserved.</p>
+<footer class="footer bg-dark text-white py-5 mt-4">
+    <div class="container">
+        <!-- Footer Content -->
+        <div class="row">
+            <!-- Left Section: About Us or Contact Information -->
+            <div class="col-md-4">
+                <h4>About Gram Panchayat</h4>
+                <p>We are committed to delivering digital governance and services for rural development. Join us in creating a digital future.</p>
+            </div>
+
+            <!-- Middle Section: Contact Information -->
+            <div class="col-md-4">
+                <h4>Contact Us</h4>
+                <p>Email: <a href="mailto:info@grampanchayatservices.com" class="text-white">info@grampanchayatservices.com</a></p>
+                <p>Phone: <a href="tel:+911234567890" class="text-white">+91 123 456 7890</a></p>
+            </div>
+
+            <!-- Right Section: Social Media Links -->
+            <div class="col-md-4">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom text-center mt-4">
+            <p>&copy; 2024 Gram Panchayat Services | All Rights Reserved</p>
+        </div>
     </div>
 </footer>
-
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -1,22 +1,54 @@
 <?php
-// Initialize variables
+session_start();
+
+// Database connection setup
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "digital_e_gram_panchayat";
+
 $message = '';
 
-// Check if the form is submitted
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize and fetch form data
-    $email = htmlspecialchars($_POST['email']);
+    $staffID = htmlspecialchars($_POST['staffID']);
     $password = htmlspecialchars($_POST['password']);
 
-    // Example credentials check (this should be replaced with database validation)
-    if ($email === "staff@example.com" && $password === "password123") {
-        // Redirect to staff dashboard (replace with actual URL)
-        header("Location: staff_dashboard.php");
-        exit();
+    // Prepare SQL query to check staff ID and fetch hashed password
+    $stmt = $conn->prepare("SELECT password FROM staff WHERE staff_id = ?");
+    
+    if ($stmt) {
+        $stmt->bind_param("s", $staffID);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($hashed_password);
+            $stmt->fetch();
+
+            if (password_verify($password, $hashed_password)) {
+                // Password is correct; regenerate session ID and store user ID in session
+                session_regenerate_id(true);
+                $_SESSION['staff_id'] = $staffID;
+                header("Location: ../staff/staff_interface.php");
+                exit();
+            } else {
+                $message = "Invalid Staff ID or password.";
+            }
+        } else {
+            $message = "Invalid Staff ID or password.";
+        }
+        $stmt->close();
     } else {
-        $message = "Invalid email or password.";
+        $message = "Error preparing the SQL statement.";
     }
 }
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Login - Digital E Gram Panchayat</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/auth.css">
+    <link rel="stylesheet" href="../assets/css/user_style.css">
 </head>
 <body>
 
@@ -39,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div class="container mt-5">
     <div class="login-container">
-        <h2 class="text-center mb-4">Staff Login - Digital E Gram Panchayat</h2>
+        <h2 class="text-center mb-4">Staff Login</h2>
 
         <?php if ($message): ?>
             <div class="alert alert-danger"><?php echo $message; ?></div>
@@ -47,8 +79,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <form action="staff_login.php" method="post">
             <div class="form-group mb-3">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+                <label for="staffID">Staff ID:</label>
+                <input type="text" class="form-control" id="staffID" name="staffID" required>
             </div>
 
             <div class="form-group mb-3">

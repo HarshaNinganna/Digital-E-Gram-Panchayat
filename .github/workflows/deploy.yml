@@ -29,4 +29,4 @@ jobs:
     - name: Deploy to Firebase
       uses: wzieba/Firebase-Action@v2
       with:
-        firebase_token: ${{ secrets.FIREBASE_TOKEN }}
+        firebase_token: ${{ 1//0g0830mpZFzx8CgYIARAAGBASNwF-L9IrwCRddcfrOLlShYfaiyXFfXdn9Ecqg9N2lF5HjcGEIaphX9SZwEhHfvyCmQk3bJ-N1jM }}

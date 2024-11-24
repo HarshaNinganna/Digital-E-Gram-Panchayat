@@ -3,35 +3,34 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - main  # Trigger the workflow on a push to the main branch
+      - main  # or any other branch you want to deploy from
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository code
-      - name: Checkout repository
-        uses: actions/checkout@v3  # Use the latest stable version
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js (version 20)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3  # Latest stable version
-        with:
-          node-version: '20'  # Explicitly specify Node.js version 20
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # Use Node.js version 20
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install  # Run shell command to install dependencies
+    - name: Install dependencies
+      run: npm install
 
-      # Step 4: Build your project (if needed)
-      - name: Build project
-        run: npm run build  # Run build command, if required for your project
+    - name: Install Firebase CLI
+      run: npm install -g firebase-tools
 
-      # Step 5: Install Firebase CLI
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools  # Install Firebase CLI globally
+    - name: Firebase Authentication
+      uses: wzieba/Firebase-Action@v2
+      with:
+        firebase_token: ${{ secrets.FIREBASE_TOKEN }}
 
-      # Step 6: Deploy to Firebase Hosting
-      - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting --project digital-e-gram-panchayat-6702f --token "${{ secrets.FIREBASE_TOKEN }}"  # Deploy with Firebase CLI using your project ID
+    - name: Build project
+      run: npm run build
+
+    - name: Deploy to Firebase Hosting
+      run: firebase deploy --only hosting --project digital-e-gram-panchayat-6702f --token "${{ secrets.FIREBASE_TOKEN }}"

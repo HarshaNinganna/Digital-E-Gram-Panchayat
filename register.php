@@ -139,6 +139,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Register - Digital E Gram Panchayat</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/auth.css">
+    <script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getAnalytics } from "firebase/analytics";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNr76sV3W9EYNfwJ-_A95vbpW503_46SE",
+    authDomain: "digital-e-gram-panchayat-6702f.firebaseapp.com",
+    projectId: "digital-e-gram-panchayat-6702f",
+    storageBucket: "digital-e-gram-panchayat-6702f.firebasestorage.app",
+    messagingSenderId: "760029374096",
+    appId: "1:760029374096:web:e822242264a6b20c609a15",
+    measurementId: "G-XDSQQKXV5H"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
     <script>
         // JavaScript to show sub-qualification and designation fields based on selection
         function checkQualification() {

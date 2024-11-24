@@ -3,7 +3,7 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - main  # This triggers the workflow on a push to the main branch
+      - main  # Trigger the workflow on a push to the main branch
 
 jobs:
   deploy:
@@ -12,11 +12,11 @@ jobs:
     steps:
       # Step 1: Checkout the repository code
       - name: Checkout repository
-        uses: actions/checkout@v2  # Uses action to check out your code
+        uses: actions/checkout@v3  # Updated to the latest version
 
       # Step 2: Set up Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3  # Updated to the latest version
         with:
           node-version: '16'  # Specify the version of Node.js
 

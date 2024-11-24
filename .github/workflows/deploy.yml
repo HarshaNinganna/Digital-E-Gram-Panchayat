@@ -1,32 +1,23 @@
-name: Deploy to Firebase Hosting
-
-on:
-  push:
-    branches:
-      - main  # or any other branch you want to deploy from
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'  # Ensure this matches your Node.js version
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
 
-    - name: Install dependencies
-      run: |
-        npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Build project
-      run: |
-        npm run build  # or whatever build command you use
+      - name: Build project
+        run: npm run build
 
-    - name: Deploy to Firebase
-      uses: wzieba/Firebase-Action@v2
-      with:
-        firebase_token: ${{ 1//0g0830mpZFzx8CgYIARAAGBASNwF-L9IrwCRddcfrOLlShYfaiyXFfXdn9Ecqg9N2lF5HjcGEIaphX9SZwEhHfvyCmQk3bJ-N1jM }}
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}"
+
+

@@ -12,11 +12,11 @@ jobs:
     steps:
       # Step 1: Checkout the repository code
       - name: Checkout repository
-        uses: actions/checkout@v3  # Latest stable version for compatibility
+        uses: actions/checkout@v3  # Use the latest stable version
 
       # Step 2: Set up Node.js (version 20)
       - name: Set up Node.js
-        uses: actions/setup-node@v3  # Latest stable version for compatibility
+        uses: actions/setup-node@v3  # Latest stable version
         with:
           node-version: '20'  # Explicitly specify Node.js version 20
 

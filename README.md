@@ -3,16 +3,20 @@ Digital E-Gram Panchayat is a comprehensive web-based application designed to di
 
 # 🌐 Features
 **For Users:**
-**Service Requests:**
+**1. Service Requests:**
 
 Submit requests for government services (e.g., certificates, approvals).
+
 Track the status of submitted applications.
-**Profile Management:**
+
+**2. Profile Management:**
 
 Create and update user profiles.
-**Notifications:**
+
+**3. Notifications:**
 
 Receive updates on the status of services via the dashboard.
+
 # **For Staff:**
 **Service Handling:**
 

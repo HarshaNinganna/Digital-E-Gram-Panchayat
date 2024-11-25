@@ -2,6 +2,7 @@
 Digital E-Gram Panchayat is a comprehensive web-based application designed to digitize and simplify rural governance. By integrating user-friendly interfaces and efficient backend systems, this project provides a streamlined solution for managing citizen services, improving transparency, and ensuring seamless communication between citizens and officials.
 
 # 🌐 Features
+
 **For Users:**
 **1. Service Requests:**
 
@@ -18,26 +19,35 @@ Create and update user profiles.
 Receive updates on the status of services via the dashboard.
 
 # **For Staff:**
+
 **Service Handling:**
 
 Review, approve, or reject service requests submitted by users.
+
 Add comments or requirements for incomplete applications.
+
 **Status Management:**
 
 Update real-time status for pending or completed services.
+
 **For Officers:**
+
 **Dashboard Insights:**
 
 View detailed analytics on service requests, approvals, and rejections.
+
 **Audit Trail Logs:**
 
 Track service updates, deletions, and other critical actions with reasons.
+
 **Staff Supervision:**
 
 Monitor and manage staff performance.
+
 **Service Management:**
 
 Add new services, edit existing ones, and categorize them appropriately.
+
 # **💻 Technologies Used**
 # **Frontend:**
 **HTML:** For structuring content.

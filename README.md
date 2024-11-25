@@ -141,14 +141,15 @@ firebase deploy --only hosting
 firebase deploy --only hosting
 ```
 # **🎨 Screenshots**
-**Dashboard (Officer View)**
-(Include a screenshot of the dashboard)
 
-**Service Request (User View)**
-(Include a screenshot of the service request form)
+**Dashboard (Officer View)**  
+![Dashboard](assets/images/Screenshot%20(90).png)
 
-**Service Management (Staff View)**
-(Include a screenshot of the service management page)
+**Service Request (User View)**  
+![Service Request](assets/images/Screenshot%20(87).png)
+
+**Service Management (Staff View)**  
+![Service Management](assets/images/Screenshot%20(91).png)
 
 # **🤝 Contributing**
 We welcome contributions to improve the Digital E-Gram Panchayat. To contribute:
